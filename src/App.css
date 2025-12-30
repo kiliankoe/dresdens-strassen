@@ -112,6 +112,19 @@
   accent-color: var(--color-female);
 }
 
+.legend-option .count {
+  color: #9ca3af;
+}
+
+.legend-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.legend-option.disabled input {
+  cursor: not-allowed;
+}
+
 .color-indicator {
   display: inline-block;
   width: 12px;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FilterState, StreetCategory } from "../lib/types";
 import { CATEGORY_LABELS, COLORS } from "../lib/types";
 
@@ -11,6 +11,7 @@ interface LegendProps {
     female: number;
     male: number;
   };
+  categoryCounts: Record<StreetCategory, number>;
   onAboutClick: () => void;
 }
 
@@ -23,9 +24,28 @@ export function Legend({
   filters,
   onFilterChange,
   stats,
+  categoryCounts,
   onAboutClick,
 }: LegendProps) {
   const [isExpanded, setIsExpanded] = useState(getInitialExpandedState);
+
+  const sortedCategories = useMemo(() => {
+    return Object.entries(CATEGORY_LABELS)
+      .map(([key, label]) => ({
+        key: key as StreetCategory,
+        label,
+        count: categoryCounts[key as StreetCategory] || 0,
+      }))
+      .sort((a, b) => {
+        // "Andere" always at bottom
+        if (a.key === "andere" && b.key !== "andere") return 1;
+        if (b.key === "andere" && a.key !== "andere") return -1;
+        // Zero counts next-to-last
+        if (a.count === 0 && b.count > 0) return 1;
+        if (b.count === 0 && a.count > 0) return -1;
+        return b.count - a.count;
+      });
+  }, [categoryCounts]);
 
   const handleGenderChange = (gender: "all" | "female" | "male") => {
     onFilterChange({ ...filters, genderFilter: gender });
@@ -75,7 +95,7 @@ export function Legend({
                   className="color-indicator"
                   style={{ backgroundColor: COLORS.female }}
                 />
-                <span>Weiblich ({stats.female})</span>
+                <span>Weiblich <span className="count">({stats.female})</span></span>
               </label>
               <label className="legend-option">
                 <input
@@ -88,7 +108,7 @@ export function Legend({
                   className="color-indicator"
                   style={{ backgroundColor: COLORS.male }}
                 />
-                <span>Männlich ({stats.male})</span>
+                <span>Männlich <span className="count">({stats.male})</span></span>
               </label>
             </div>
           </section>
@@ -103,19 +123,23 @@ export function Legend({
                   checked={filters.categoryFilter === "all"}
                   onChange={() => handleCategoryChange("all")}
                 />
-                <span>Alle Kategorien</span>
+                <span>Alle</span>
               </label>
-              {(
-                Object.entries(CATEGORY_LABELS) as [StreetCategory, string][]
-              ).map(([key, label]) => (
-                <label key={key} className="legend-option">
+              {sortedCategories.map(({ key, label, count }) => (
+                <label
+                  key={key}
+                  className={`legend-option${count === 0 ? " disabled" : ""}`}
+                >
                   <input
                     type="radio"
                     name="category"
                     checked={filters.categoryFilter === key}
                     onChange={() => handleCategoryChange(key)}
+                    disabled={count === 0}
                   />
-                  <span>{label}</span>
+                  <span>
+                    {label} <span className="count">({count})</span>
+                  </span>
                 </label>
               ))}
             </div>

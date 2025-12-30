@@ -7,7 +7,7 @@ import { InfoPanel } from "./components/InfoPanel";
 import { Legend } from "./components/Legend";
 import { Map } from "./components/Map";
 import { filterFeatures, parseGeoJSON, type WFSGeoJSON } from "./lib/data";
-import type { FilterState, StreetProperties } from "./lib/types";
+import type { FilterState, StreetCategory, StreetProperties } from "./lib/types";
 
 type StreetData = FeatureCollection<
   LineString | MultiLineString,
@@ -61,6 +61,41 @@ function App() {
     return { total, namedAfterPerson, female, male };
   }, [allData]);
 
+  const categoryCounts = useMemo(() => {
+    if (!allData) return {} as Record<StreetCategory, number>;
+
+    const counts: Record<StreetCategory, number> = {
+      kuenstler: 0,
+      schriftsteller: 0,
+      wissenschaftler: 0,
+      politiker: 0,
+      musiker: 0,
+      adel: 0,
+      paedagoge: 0,
+      antifaschist: 0,
+      andere: 0,
+    };
+
+    for (const feature of allData.features) {
+      const { person, isFemale, category } = feature.properties;
+      if (!person || !category) continue;
+      if (filters.genderFilter === "female" && isFemale !== true) continue;
+      if (filters.genderFilter === "male" && isFemale !== false) continue;
+      counts[category]++;
+    }
+
+    return counts;
+  }, [allData, filters.genderFilter]);
+
+  useEffect(() => {
+    if (
+      filters.categoryFilter !== "all" &&
+      categoryCounts[filters.categoryFilter] === 0
+    ) {
+      setFilters((f) => ({ ...f, categoryFilter: "all" }));
+    }
+  }, [categoryCounts, filters.categoryFilter]);
+
   const handleStreetClick = (properties: StreetProperties | null) => {
     setSelectedStreet(properties);
   };
@@ -88,6 +123,7 @@ function App() {
         filters={filters}
         onFilterChange={setFilters}
         stats={stats}
+        categoryCounts={categoryCounts}
         onAboutClick={() => setIsAboutOpen(true)}
       />
       <InfoPanel street={selectedStreet} onClose={handleCloseInfo} />
