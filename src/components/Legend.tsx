@@ -14,13 +14,18 @@ interface LegendProps {
   onAboutClick: () => void;
 }
 
+const getInitialExpandedState = () => {
+  if (typeof window === "undefined") return true;
+  return window.matchMedia("(min-width: 768px)").matches;
+};
+
 export function Legend({
   filters,
   onFilterChange,
   stats,
   onAboutClick,
 }: LegendProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(getInitialExpandedState);
 
   const handleGenderChange = (gender: "all" | "female" | "male") => {
     onFilterChange({ ...filters, genderFilter: gender });
