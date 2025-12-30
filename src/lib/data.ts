@@ -15,12 +15,13 @@ import type {
 const CATEGORY_PATTERNS: Record<StreetCategory, RegExp> = {
   kuenstler: /maler|bildhauer|grafik|künstler|architekt/i,
   schriftsteller: /dichter|schriftsteller|autor|journalist|literat/i,
-  musiker: /komponist|sänger|musik|kapellmeister|dirigent/i,
   wissenschaftler:
     /professor|physiker|chemiker|wissenschaft|forscher|gelehrter|arzt|medizin/i,
   politiker: /politiker|minister|bürgermeister|staatsmann|stadtverordnet/i,
-  antifaschist: /antifaschist|widerstandskämpfer/i,
+  musiker: /komponist|sänger|musik|kapellmeister|dirigent/i,
   adel: /könig|herzog|kurfürst|prinz|gemahlin|fürst/i,
+  paedagoge: /pädagog|lehrer|erzieher|schulrat/i,
+  antifaschist: /antifaschist|widerstandskämpfer/i,
   andere: /.*/,
 };
 

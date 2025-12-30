@@ -40,21 +40,23 @@ export type StreetFeature = Feature<
 export type StreetCategory =
   | "kuenstler"
   | "schriftsteller"
-  | "musiker"
   | "wissenschaftler"
   | "politiker"
-  | "antifaschist"
+  | "musiker"
   | "adel"
+  | "paedagoge"
+  | "antifaschist"
   | "andere";
 
 export const CATEGORY_LABELS: Record<StreetCategory, string> = {
   kuenstler: "Künstler:innen",
   schriftsteller: "Schriftsteller:innen",
-  musiker: "Musiker:innen",
   wissenschaftler: "Wissenschaftler:innen",
   politiker: "Politiker:innen",
-  antifaschist: "Antifaschist:innen",
+  musiker: "Musiker:innen",
   adel: "Adel",
+  paedagoge: "Pädagog:innen",
+  antifaschist: "Antifaschist:innen",
   andere: "Andere",
 };
 
