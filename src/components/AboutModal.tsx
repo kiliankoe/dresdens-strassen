@@ -7,9 +7,15 @@ interface AboutModalProps {
     female: number;
     male: number;
   };
+  lastUpdated: string | null;
 }
 
-export function AboutModal({ isOpen, onClose, stats }: AboutModalProps) {
+export function AboutModal({
+  isOpen,
+  onClose,
+  stats,
+  lastUpdated,
+}: AboutModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -58,6 +64,17 @@ export function AboutModal({ isOpen, onClose, stats }: AboutModalProps) {
           <p>
             {stats.female} weiblich, {stats.male} männlich
           </p>
+          <br />
+          {lastUpdated && (
+            <p>
+              Stand:{" "}
+              {new Date(lastUpdated).toLocaleDateString("de-DE", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+          )}
         </div>
       </div>
     </div>

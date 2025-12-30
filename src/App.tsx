@@ -183,6 +183,7 @@ function App() {
         isOpen={isAboutOpen}
         onClose={() => setIsAboutOpen(false)}
         stats={stats}
+        lastUpdated={__DATA_LAST_UPDATED__}
       />
     </div>
   );
