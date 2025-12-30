@@ -1,5 +1,5 @@
 import type { FeatureCollection, LineString, MultiLineString } from "geojson";
-import type { StreetFeature, StreetProperties, StreetCategory } from "./types";
+import type { StreetCategory, StreetFeature, StreetProperties } from "./types";
 
 export interface WFSFeatureProperties {
   str_ident: string;
@@ -13,15 +13,16 @@ export interface WFSFeatureProperties {
 }
 
 const CATEGORY_PATTERNS: Record<StreetCategory, RegExp> = {
-  kuenstler: /maler|bildhauer|grafik|künstler|architekt/i,
+  kuenstler: /maler|bildhauer|grafik|künstler|architekt|schauspieler/i,
   schriftsteller: /dichter|schriftsteller|autor|journalist|literat/i,
   wissenschaftler:
-    /professor|physiker|chemiker|wissenschaft|forscher|gelehrter|arzt|medizin/i,
+    /professor|physiker|chemiker|wissenschaft|forscher|gelehrter|arzt|ärztin|medizin|botaniker|historiker/i,
   politiker: /politiker|minister|bürgermeister|staatsmann|stadtverordnet/i,
-  musiker: /komponist|sänger|musik|kapellmeister|dirigent/i,
+  musiker:
+    /komponist|sänger|musik|kapellmeister|dirigent|pianist|sopranist|organist/i,
   adel: /könig|herzog|kurfürst|prinz|gemahlin|fürst/i,
   paedagoge: /pädagog|lehrer|erzieher|schulrat/i,
-  antifaschist: /antifaschist|widerstandskämpfer/i,
+  antifaschist: /antifaschist|widerstandskämpfer|Gegner des Naziregimes/i,
   andere: /.*/,
 };
 
