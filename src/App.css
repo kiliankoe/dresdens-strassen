@@ -133,9 +133,12 @@
   flex-shrink: 0;
 }
 
-.legend-section.stats p {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
+.legend-view-toggle {
+  padding: 0.75rem 1rem 0;
+}
+
+.legend-section .legend-option + .about-button {
+  margin-top: 0.75rem;
 }
 
 .about-button {
@@ -153,6 +156,38 @@
   background: #f9fafb;
   color: var(--color-text);
   border-color: var(--color-text-secondary);
+}
+
+/* View Mode Toggle */
+.legend-toggle-group {
+  display: flex;
+  gap: 0.25rem;
+  background: #f3f4f6;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.toggle-button {
+  flex: 1;
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-button.active {
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-button:hover:not(.active) {
+  color: var(--color-text);
 }
 
 /* Info Panel */
@@ -231,6 +266,15 @@
 }
 
 .info-panel-gender {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+.info-panel-era {
   display: inline-block;
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
@@ -371,4 +415,20 @@
 
 .modal-content a:hover {
   color: var(--color-text);
+}
+
+.modal-stats {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.modal-stats p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.modal-stats p:last-child {
+  margin-bottom: 0;
 }

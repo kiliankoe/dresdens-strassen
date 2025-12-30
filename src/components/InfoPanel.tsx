@@ -1,5 +1,5 @@
 import type { StreetProperties } from "../lib/types";
-import { CATEGORY_LABELS, COLORS } from "../lib/types";
+import { CATEGORY_LABELS, COLORS, ERA_COLORS, ERA_LABELS } from "../lib/types";
 
 interface InfoPanelProps {
   street: StreetProperties | null;
@@ -34,9 +34,6 @@ export function InfoPanel({ street, onClose }: InfoPanelProps) {
       </button>
 
       <h2 className="info-panel-title">{street.name}</h2>
-      {street.nameShort !== street.name && (
-        <p className="info-panel-subtitle">{street.nameShort}</p>
-      )}
 
       {street.person && (
         <div className="info-panel-person">
@@ -46,21 +43,31 @@ export function InfoPanel({ street, onClose }: InfoPanelProps) {
             <p className="info-panel-description">{street.description}</p>
           )}
 
-          <div className="info-panel-meta">
-            {(street.birthYear || street.deathYear) && (
-              <span className="info-panel-years">
-                {street.birthYear && `* ${street.birthYear}`}
-                {street.birthYear && street.deathYear && " – "}
-                {street.deathYear && `† ${street.deathYear}`}
-              </span>
-            )}
+          {(street.birthYear || street.deathYear) && (
+            <span className="info-panel-years">
+              {street.birthYear && `* ${street.birthYear}`}
+              {street.birthYear && street.deathYear && " – "}
+              {street.deathYear && `† ${street.deathYear}`}
+              {street.deathNote && ` (${street.deathNote})`}
+            </span>
+          )}
 
+          <div className="info-panel-meta">
             {genderLabel && (
               <span
                 className="info-panel-gender"
                 style={{ backgroundColor: genderColor }}
               >
                 {genderLabel}
+              </span>
+            )}
+
+            {street.era && street.era !== "unknown" && (
+              <span
+                className="info-panel-era"
+                style={{ backgroundColor: ERA_COLORS[street.era] }}
+              >
+                {ERA_LABELS[street.era]}
               </span>
             )}
 

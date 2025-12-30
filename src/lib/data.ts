@@ -1,5 +1,10 @@
 import type { FeatureCollection, LineString, MultiLineString } from "geojson";
-import type { StreetCategory, StreetFeature, StreetProperties } from "./types";
+import type {
+  HistoricalEra,
+  StreetCategory,
+  StreetFeature,
+  StreetProperties,
+} from "./types";
 
 export interface WFSFeatureProperties {
   str_ident: string;
@@ -42,6 +47,31 @@ function parseYear(yearStr: string | null): string | null {
   if (!yearStr) return null;
   const match = yearStr.match(/\d{4}/);
   return match ? match[0] : null;
+}
+
+function parseDeathNote(deathStr: string | null): string | null {
+  if (!deathStr) return null;
+  // Remove the leading "+ " or "† " and the year, keep the rest
+  const withoutPrefix = deathStr.replace(/^[+†]\s*/, "");
+  const withoutYear = withoutPrefix.replace(/\d{4}\s*/, "").trim();
+  return withoutYear || null;
+}
+
+export function classifyEra(deathYear: string | null): HistoricalEra {
+  if (!deathYear) return "unknown";
+  const year = parseInt(deathYear, 10);
+  if (isNaN(year)) return "unknown";
+
+  if (year < 1500) return "medieval";
+  if (year < 1600) return "century16";
+  if (year < 1700) return "century17";
+  if (year < 1800) return "century18";
+  if (year < 1871) return "preUnification";
+  if (year < 1919) return "wilhelmine";
+  if (year < 1933) return "weimar";
+  if (year < 1946) return "thirdReich";
+  if (year < 1990) return "gdr";
+  return "postReunification";
 }
 
 interface WFSGeometry {
@@ -93,8 +123,10 @@ export function parseGeoJSON(
         description: raw.zusatz || null,
         birthYear: parseYear(raw.geb),
         deathYear: parseYear(raw.gest),
+        deathNote: parseDeathNote(raw.gest),
         isFemale,
         category: hasPerson ? categorizeStreet(raw.zusatz) : null,
+        era: hasPerson ? classifyEra(parseYear(raw.gest)) : null,
       },
     };
   });
@@ -107,9 +139,10 @@ export function filterFeatures(
   showAllStreets: boolean,
   genderFilter: "all" | "female" | "male",
   categoryFilter: StreetCategory | "all",
+  eraFilter: HistoricalEra | "all",
 ): FeatureCollection<LineString | MultiLineString, StreetProperties> {
   const filtered = data.features.filter((feature) => {
-    const { person, isFemale, category } = feature.properties;
+    const { person, isFemale, category, era } = feature.properties;
 
     if (!showAllStreets && !person) return false;
 
@@ -117,6 +150,7 @@ export function filterFeatures(
       if (genderFilter === "female" && isFemale !== true) return false;
       if (genderFilter === "male" && isFemale !== false) return false;
       if (categoryFilter !== "all" && category !== categoryFilter) return false;
+      if (eraFilter !== "all" && era !== eraFilter) return false;
     }
 
     return true;

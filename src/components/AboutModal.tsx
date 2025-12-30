@@ -1,9 +1,15 @@
 interface AboutModalProps {
   isOpen: boolean;
   onClose: () => void;
+  stats: {
+    total: number;
+    namedAfterPerson: number;
+    female: number;
+    male: number;
+  };
 }
 
-export function AboutModal({ isOpen, onClose }: AboutModalProps) {
+export function AboutModal({ isOpen, onClose, stats }: AboutModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -45,6 +51,14 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
           Der Quelltext der Seite liegt auf{" "}
           <a href="https://github.com/kiliankoe/dresdens-strassen">GitHub</a>.
         </p>
+
+        <div className="modal-stats">
+          <p>{stats.total} Straßen insgesamt</p>
+          <p>{stats.namedAfterPerson} nach Personen benannt</p>
+          <p>
+            {stats.female} weiblich, {stats.male} männlich
+          </p>
+        </div>
       </div>
     </div>
   );

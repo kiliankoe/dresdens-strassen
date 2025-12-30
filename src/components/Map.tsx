@@ -2,19 +2,68 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { FeatureCollection, LineString, MultiLineString } from "geojson";
-import type { StreetProperties } from "../lib/types";
-import { COLORS } from "../lib/types";
+import type { StreetProperties, ViewMode } from "../lib/types";
+import { COLORS, ERA_COLORS } from "../lib/types";
 
 interface MapProps {
   data: FeatureCollection<LineString | MultiLineString, StreetProperties>;
   onStreetClick: (properties: StreetProperties | null) => void;
   selectedStreetId: number | null;
+  viewMode: ViewMode;
+}
+
+function getLineColorExpression(
+  viewMode: ViewMode,
+): maplibregl.ExpressionSpecification {
+  if (viewMode === "gender") {
+    return [
+      "case",
+      ["==", ["get", "isFemale"], true],
+      COLORS.female,
+      ["==", ["get", "isFemale"], false],
+      COLORS.male,
+      COLORS.neutral,
+    ];
+  }
+
+  return [
+    "match",
+    ["get", "era"],
+    "medieval",
+    ERA_COLORS.medieval,
+    "century16",
+    ERA_COLORS.century16,
+    "century17",
+    ERA_COLORS.century17,
+    "century18",
+    ERA_COLORS.century18,
+    "preUnification",
+    ERA_COLORS.preUnification,
+    "wilhelmine",
+    ERA_COLORS.wilhelmine,
+    "weimar",
+    ERA_COLORS.weimar,
+    "thirdReich",
+    ERA_COLORS.thirdReich,
+    "gdr",
+    ERA_COLORS.gdr,
+    "postReunification",
+    ERA_COLORS.postReunification,
+    "unknown",
+    ERA_COLORS.unknown,
+    COLORS.neutral,
+  ];
 }
 
 const DRESDEN_CENTER: [number, number] = [13.7372, 51.0504];
 const INITIAL_ZOOM = 12;
 
-export function Map({ data, onStreetClick, selectedStreetId }: MapProps) {
+export function Map({
+  data,
+  onStreetClick,
+  selectedStreetId,
+  viewMode,
+}: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
 
@@ -72,14 +121,7 @@ export function Map({ data, onStreetClick, selectedStreetId }: MapProps) {
           "line-cap": "round",
         },
         paint: {
-          "line-color": [
-            "case",
-            ["==", ["get", "isFemale"], true],
-            COLORS.female,
-            ["==", ["get", "isFemale"], false],
-            COLORS.male,
-            COLORS.neutral,
-          ],
+          "line-color": getLineColorExpression(viewMode),
           "line-width": 4,
           "line-opacity": 0.85,
         },
@@ -151,6 +193,17 @@ export function Map({ data, onStreetClick, selectedStreetId }: MapProps) {
       0,
     ]);
   }, [selectedStreetId]);
+
+  useEffect(() => {
+    if (!map.current) return;
+    if (!map.current.getLayer("streets-line")) return;
+
+    map.current.setPaintProperty(
+      "streets-line",
+      "line-color",
+      getLineColorExpression(viewMode),
+    );
+  }, [viewMode]);
 
   return <div ref={mapContainer} className="map-container" />;
 }
