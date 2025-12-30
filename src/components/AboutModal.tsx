@@ -20,9 +20,9 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
         <h1>Über das Projekt</h1>
 
         <p>
-          Dies ist ein Projekt von <a href="https://kilian.io">Kilian</a>. Ich
-          war neugierig, wie viele von Dresdens Straßen nach Frauen benannt
-          sind. Anscheinend ~12%.
+          Das hier ist ein Projekt von <a href="https://kilian.io">Kilian</a>.
+          Ich war neugierig, wie viele von Dresdens Straßen nach Frauen benannt
+          sind, anscheinend so ~12%.
         </p>
 
         <p>
@@ -37,7 +37,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 
         <p>
           Kartendaten werden freundlicherweise von{" "}
-          <a href="https://openfreemap.org/">OpenFreeMap</a> gehostet,
+          <a href="https://openfreemap.org/">OpenFreeMap</a> bereitgestellt,
           dankeschön! 🫶
         </p>
 

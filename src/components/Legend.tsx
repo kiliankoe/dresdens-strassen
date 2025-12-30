@@ -123,8 +123,8 @@ export function Legend({
 
           <section className="legend-section stats">
             <h3>Statistik</h3>
-            <p>Straßen gesamt: {stats.total}</p>
-            <p>Nach Personen benannt: {stats.namedAfterPerson}</p>
+            <p>{stats.total} Straßen insgesamt</p>
+            <p>{stats.namedAfterPerson} nach Personen benannt</p>
             <label className="legend-option" style={{ marginTop: "0.5rem" }}>
               <input
                 type="checkbox"
