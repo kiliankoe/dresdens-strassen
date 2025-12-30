@@ -22,7 +22,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
         <p>
           Dies ist ein Projekt von <a href="https://kilian.io">Kilian</a>. Ich
           war neugierig, wie viele von Dresdens Straßen nach Frauen benannt
-          waren. Anscheinend ~12%.
+          sind. Anscheinend ~12%.
         </p>
 
         <p>
@@ -42,7 +42,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
         </p>
 
         <p>
-          Quelltext der Seite liegt auf{" "}
+          Der Quelltext der Seite liegt auf{" "}
           <a href="https://github.com/kiliankoe/dresdens-strassen">GitHub</a>.
         </p>
       </div>
