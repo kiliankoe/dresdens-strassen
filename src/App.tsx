@@ -1,19 +1,21 @@
-import { useState, useEffect, useMemo } from "react";
-import { Map } from "./components/Map";
-import { Legend } from "./components/Legend";
-import { InfoPanel } from "./components/InfoPanel";
-import { AboutModal } from "./components/AboutModal";
-import { parseCSV, filterFeatures } from "./lib/data";
-import type { FilterState, StreetProperties } from "./lib/types";
 import type { FeatureCollection, LineString, MultiLineString } from "geojson";
-import csvData from "../data/Straßenknotennetz 125000 (SKN25) - Straßenzüge.csv?raw";
+import { useEffect, useMemo, useState } from "react";
+import geojsonData from "../data/streets.json";
 import "./App.css";
+import { AboutModal } from "./components/AboutModal";
+import { InfoPanel } from "./components/InfoPanel";
+import { Legend } from "./components/Legend";
+import { Map } from "./components/Map";
+import { filterFeatures, parseGeoJSON, type WFSGeoJSON } from "./lib/data";
+import type { FilterState, StreetProperties } from "./lib/types";
+
+type StreetData = FeatureCollection<
+  LineString | MultiLineString,
+  StreetProperties
+>;
 
 function App() {
-  const [allData, setAllData] = useState<FeatureCollection<
-    LineString | MultiLineString,
-    StreetProperties
-  > | null>(null);
+  const [allData, setAllData] = useState<StreetData | null>(null);
 
   const [filters, setFilters] = useState<FilterState>({
     showAllStreets: false,
@@ -28,7 +30,7 @@ function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   useEffect(() => {
-    const data = parseCSV(csvData);
+    const data = parseGeoJSON(geojsonData as unknown as WFSGeoJSON);
     setAllData(data);
   }, []);
 

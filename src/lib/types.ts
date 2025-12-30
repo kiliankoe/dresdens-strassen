@@ -1,24 +1,5 @@
 import type { Feature, LineString, MultiLineString } from "geojson";
 
-export interface StreetRawData {
-  id: string;
-  str_ident: string;
-  strasse: string;
-  strasse_kurz: string;
-  person: string;
-  zusatz: string;
-  geb: string;
-  gest: string;
-  weiblich: string;
-  zusatz_komplett: string;
-  bem: string;
-  guelt_ab: string;
-  erf_dat: string;
-  aend_dat: string;
-  geom: string;
-  fme_transfer_date: string;
-}
-
 export interface StreetProperties {
   id: number;
   strIdent: string;

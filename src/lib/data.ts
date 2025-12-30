@@ -1,16 +1,16 @@
-import Papa from "papaparse";
-import type {
-  FeatureCollection,
-  LineString,
-  MultiLineString,
-  Position,
-} from "geojson";
-import type {
-  StreetRawData,
-  StreetFeature,
-  StreetProperties,
-  StreetCategory,
-} from "./types";
+import type { FeatureCollection, LineString, MultiLineString } from "geojson";
+import type { StreetFeature, StreetProperties, StreetCategory } from "./types";
+
+export interface WFSFeatureProperties {
+  str_ident: string;
+  strasse: string;
+  strasse_kurz: string;
+  person: string | null;
+  zusatz: string | null;
+  geb: string | null;
+  gest: string | null;
+  weiblich: string | null;
+}
 
 const CATEGORY_PATTERNS: Record<StreetCategory, RegExp> = {
   kuenstler: /maler|bildhauer|grafik|künstler|architekt/i,
@@ -37,97 +37,68 @@ function categorizeStreet(zusatz: string | null): StreetCategory | null {
   return "andere";
 }
 
-function parseWKT(wkt: string): LineString | MultiLineString | null {
-  if (!wkt) return null;
-
-  const cleaned = wkt.replace(/^SRID=\d+;/, "");
-
-  if (cleaned.startsWith("MULTILINESTRING")) {
-    const match = cleaned.match(/MULTILINESTRING\(\((.+)\)\)/);
-    if (!match) return null;
-
-    const lineStrings = match[1].split("),(").map((ls) => {
-      return ls
-        .replace(/^\(|\)$/g, "")
-        .split(",")
-        .map((coord) => {
-          const [lng, lat] = coord.trim().split(" ").map(Number);
-          return [lng, lat] as Position;
-        });
-    });
-
-    return {
-      type: "MultiLineString",
-      coordinates: lineStrings,
-    };
-  }
-
-  if (cleaned.startsWith("LINESTRING")) {
-    const match = cleaned.match(/LINESTRING\((.+)\)/);
-    if (!match) return null;
-
-    const coordinates = match[1].split(",").map((coord) => {
-      const [lng, lat] = coord.trim().split(" ").map(Number);
-      return [lng, lat] as Position;
-    });
-
-    return {
-      type: "LineString",
-      coordinates,
-    };
-  }
-
-  return null;
-}
-
 function parseYear(yearStr: string | null): string | null {
   if (!yearStr) return null;
   const match = yearStr.match(/\d{4}/);
   return match ? match[0] : null;
 }
 
-export function parseCSV(
-  csvText: string,
+interface WFSGeometry {
+  type: string;
+  coordinates: number[][] | number[][][];
+}
+
+interface WFSFeature {
+  type: string;
+  id: number;
+  geometry: WFSGeometry;
+  properties: WFSFeatureProperties;
+}
+
+export interface WFSGeoJSON {
+  type: string;
+  features: WFSFeature[];
+}
+
+export function parseGeoJSON(
+  geojson: WFSGeoJSON,
 ): FeatureCollection<LineString | MultiLineString, StreetProperties> {
-  const result = Papa.parse<StreetRawData>(csvText, {
-    header: true,
-    delimiter: ";",
-    skipEmptyLines: true,
+  const features: StreetFeature[] = geojson.features.map((feature) => {
+    const raw = feature.properties;
+    const hasPerson = Boolean(raw.person?.trim());
+    const isFemale = hasPerson ? raw.weiblich === "ja" : null;
+
+    // Explicitly recreate geometry to ensure proper structure
+    const geometry: LineString | MultiLineString =
+      feature.geometry.type === "MultiLineString"
+        ? {
+            type: "MultiLineString" as const,
+            coordinates: feature.geometry.coordinates as number[][][],
+          }
+        : {
+            type: "LineString" as const,
+            coordinates: feature.geometry.coordinates as number[][],
+          };
+
+    return {
+      type: "Feature" as const,
+      geometry,
+      properties: {
+        id: feature.id,
+        strIdent: raw.str_ident,
+        name: raw.strasse,
+        nameShort: raw.strasse_kurz,
+        person: hasPerson ? raw.person : null,
+        description: raw.zusatz || null,
+        birthYear: parseYear(raw.geb),
+        deathYear: parseYear(raw.gest),
+        isFemale,
+        category: hasPerson ? categorizeStreet(raw.zusatz) : null,
+      },
+    };
   });
 
-  const features: StreetFeature[] = [];
-
-  for (const row of result.data) {
-    const geometry = parseWKT(row.geom);
-    if (!geometry) continue;
-
-    const hasPerson = Boolean(row.person && row.person.trim());
-    const isFemale = hasPerson ? row.weiblich === "ja" : null;
-
-    const properties: StreetProperties = {
-      id: parseInt(row.id, 10),
-      strIdent: row.str_ident,
-      name: row.strasse,
-      nameShort: row.strasse_kurz,
-      person: hasPerson ? row.person : null,
-      description: row.zusatz || null,
-      birthYear: parseYear(row.geb),
-      deathYear: parseYear(row.gest),
-      isFemale,
-      category: hasPerson ? categorizeStreet(row.zusatz) : null,
-    };
-
-    features.push({
-      type: "Feature",
-      geometry,
-      properties,
-    });
-  }
-
-  return {
-    type: "FeatureCollection",
-    features,
-  };
+  return { type: "FeatureCollection", features };
 }
 
 export function filterFeatures(

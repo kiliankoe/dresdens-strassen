@@ -1,0 +1,60 @@
+name: Update Street Data
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch data from WFS
+        run: |
+          curl -sf "https://kommisdd.dresden.de/net3/public/ogcsl.ashx?NODEID=2228&Service=WFS&Request=GetFeature&TYPENAMES=cls:L1738&outputFormat=application/geo%2Bjson&SRSNAME=EPSG:4326" \
+            -o "data/streets.json"
+
+      - name: Validate GeoJSON
+        run: |
+          if ! jq empty data/streets.json 2>/dev/null; then
+            echo "Error: Invalid JSON"
+            exit 1
+          fi
+
+          FEATURE_COUNT=$(jq '.features | length' data/streets.json)
+          echo "Feature count: $FEATURE_COUNT"
+
+          if [ "$FEATURE_COUNT" -lt 1000 ]; then
+            echo "Error: Expected at least 1000 streets, got $FEATURE_COUNT"
+            exit 1
+          fi
+
+          if ! jq -e '.features[0].properties | has("strasse") and has("str_ident")' data/streets.json > /dev/null; then
+            echo "Error: Missing required properties"
+            exit 1
+          fi
+
+          echo "Validation passed"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet "data/streets.json"; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add "data/streets.json"
+          git commit -m "Update street data from Dresden OpenData"
+          git push

@@ -19,7 +19,12 @@ export function Map({ data, onStreetClick, selectedStreetId }: MapProps) {
   const map = useRef<maplibregl.Map | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    if (!mapContainer.current) return;
+
+    if (map.current) {
+      map.current.resize();
+      return;
+    }
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
@@ -125,11 +130,6 @@ export function Map({ data, onStreetClick, selectedStreetId }: MapProps) {
         map.current.getCanvas().style.cursor = "";
       }
     });
-
-    return () => {
-      map.current?.remove();
-      map.current = null;
-    };
   }, []);
 
   useEffect(() => {
