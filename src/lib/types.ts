@@ -1,7 +1,6 @@
 import type { Feature, LineString, MultiLineString } from "geojson";
 
 export interface StreetProperties {
-  id: number;
   strIdent: string;
   name: string;
   nameShort: string;

@@ -81,7 +81,6 @@ interface WFSGeometry {
 
 interface WFSFeature {
   type: string;
-  id: number;
   geometry: WFSGeometry;
   properties: WFSFeatureProperties;
 }
@@ -115,7 +114,6 @@ export function parseGeoJSON(
       type: "Feature" as const,
       geometry,
       properties: {
-        id: feature.id,
         strIdent: raw.str_ident,
         name: raw.strasse,
         nameShort: raw.strasse_kurz,

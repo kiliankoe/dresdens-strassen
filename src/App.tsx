@@ -167,7 +167,7 @@ function App() {
       <Map
         data={filteredData}
         onStreetClick={handleStreetClick}
-        selectedStreetId={selectedStreet?.id ?? null}
+        selectedStreetId={selectedStreet?.strIdent ?? null}
         viewMode={filters.viewMode}
       />
       <Legend

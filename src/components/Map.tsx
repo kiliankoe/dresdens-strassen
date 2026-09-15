@@ -8,7 +8,7 @@ import { COLORS, ERA_COLORS } from "../lib/types";
 interface MapProps {
   data: FeatureCollection<LineString | MultiLineString, StreetProperties>;
   onStreetClick: (properties: StreetProperties | null) => void;
-  selectedStreetId: number | null;
+  selectedStreetId: string | null;
   viewMode: ViewMode;
 }
 
@@ -105,7 +105,7 @@ export function Map({
           "line-width": 10,
           "line-opacity": [
             "case",
-            ["==", ["get", "id"], selectedStreetId ?? -1],
+            ["==", ["get", "strIdent"], selectedStreetId ?? ""],
             1,
             0,
           ],
@@ -188,7 +188,7 @@ export function Map({
 
     map.current.setPaintProperty("streets-highlight", "line-opacity", [
       "case",
-      ["==", ["get", "id"], selectedStreetId ?? -1],
+      ["==", ["get", "strIdent"], selectedStreetId ?? ""],
       1,
       0,
     ]);

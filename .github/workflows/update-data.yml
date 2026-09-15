@@ -14,6 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Fetch data from WFS
         run: |
           curl -sf "https://kommisdd.dresden.de/net3/public/ogcsl.ashx?NODEID=2228&Service=WFS&Request=GetFeature&TYPENAMES=cls:L1738&outputFormat=application/geo%2Bjson&SRSNAME=EPSG:4326" \
@@ -40,6 +43,9 @@ jobs:
           fi
 
           echo "Validation passed"
+
+      - name: Format
+        run: bun scripts/format-streets.ts data/streets.json
 
       - name: Check for changes
         id: changes
